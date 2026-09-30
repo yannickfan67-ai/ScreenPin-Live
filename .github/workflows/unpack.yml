@@ -1,0 +1,31 @@
+name: import-source
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Expand staged source
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat .screenpin-part-* | base64 -d > /tmp/screenpin-source.zip
+          rm -rf /tmp/screenpin-unpack
+          mkdir -p /tmp/screenpin-unpack
+          unzip -q /tmp/screenpin-source.zip -d /tmp/screenpin-unpack
+          cp -a /tmp/screenpin-unpack/ScreenPinLive/. .
+          rm -f .screenpin-part-*
+          rm -f .github/workflows/unpack.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Import ScreenPin Live v0.1 source"
+          git push
