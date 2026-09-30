@@ -101,7 +101,7 @@ public static class HomographyCompositor
 
     private static double[] Invert3x3(double[] m)
     {
-        var a=m[0], b=m[1], c=m[2], d=m[3], e=m[4], f=m[5], g=m[6], h=m[7], i=m[8];
+        double a=m[0], b=m[1], c=m[2], d=m[3], e=m[4], f=m[5], g=m[6], h=m[7], i=m[8];
         var A=e*i-f*h; var B=-(d*i-f*g); var C=d*h-e*g;
         var D=-(b*i-c*h); var E=a*i-c*g; var F=-(a*h-b*g);
         var G=b*f-c*e; var H=-(a*f-c*d); var I=a*e-b*d;
