@@ -1,0 +1,27 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ScreenPinLive.MainWindow"
+        Title="ScreenPin Live" Width="1180" Height="780" MinWidth="760" MinHeight="520">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="14">
+    <Grid ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="10">
+      <StackPanel>
+        <TextBlock Text="ScreenPin Live" FontSize="22" FontWeight="SemiBold" />
+        <TextBlock x:Name="StatusText" Text="Starting…" Opacity="0.75" />
+      </StackPanel>
+      <Button Grid.Column="1" x:Name="ServerButton" Content="Stop server" Padding="18,9" />
+      <Button Grid.Column="2" x:Name="RecordButton" Content="Record" Padding="18,9" />
+      <Button Grid.Column="3" x:Name="SnapshotButton" Content="Snapshot" Padding="18,9" />
+    </Grid>
+
+    <Border Grid.Row="1" Margin="0,14" CornerRadius="8" Background="#111111" ClipToBounds="True">
+      <Image x:Name="PreviewImage" Stretch="Uniform" />
+    </Border>
+
+    <Grid Grid.Row="2" ColumnDefinitions="Auto,170,Auto,*" ColumnSpacing="10">
+      <TextBlock VerticalAlignment="Center" Text="Replacement opacity" />
+      <Slider Grid.Column="1" x:Name="OpacitySlider" Minimum="0" Maximum="1" Value="1" />
+      <TextBlock Grid.Column="2" VerticalAlignment="Center" Text="TCP 45900 · UDP 45901 · source: primary desktop" Opacity="0.7" />
+      <TextBlock Grid.Column="3" x:Name="PerfText" HorizontalAlignment="Right" VerticalAlignment="Center" Opacity="0.7" />
+    </Grid>
+  </Grid>
+</Window>
