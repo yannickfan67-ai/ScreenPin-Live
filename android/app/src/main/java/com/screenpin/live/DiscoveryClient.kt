@@ -114,7 +114,7 @@ class DiscoveryClient {
                 val ip = prefix + host
                 if (ip == local.hostAddress) continue
                 submitted++
-                completion.submit<String?> {
+                completion.submit {
                     if (cancelled()) return@submit null
                     try {
                         Socket().use { s ->

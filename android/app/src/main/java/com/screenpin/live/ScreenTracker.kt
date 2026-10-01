@@ -276,10 +276,10 @@ class ScreenTracker {
     }
 
     private fun quadToPixels(q: Quad, w: Int, h: Int): Array<Point> = arrayOf(
-        Point(q.tl.x * w, q.tl.y * h),
-        Point(q.tr.x * w, q.tr.y * h),
-        Point(q.br.x * w, q.br.y * h),
-        Point(q.bl.x * w, q.bl.y * h)
+        Point((q.tl.x * w).toDouble(), (q.tl.y * h).toDouble()),
+        Point((q.tr.x * w).toDouble(), (q.tr.y * h).toDouble()),
+        Point((q.br.x * w).toDouble(), (q.br.y * h).toDouble()),
+        Point((q.bl.x * w).toDouble(), (q.bl.y * h).toDouble())
     )
 
     private fun pixelsToQuad(p: Array<Point>, w: Int, h: Int): Quad {
