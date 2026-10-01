@@ -123,7 +123,7 @@ class MainActivity : ComponentActivity() {
         }
         val clear = Button(this).apply {
             text = "Clear"
-            setOnClickListener { tracker.clear(); overlay.quad = null }
+            setOnClickListener { tracker.clear(); this@MainActivity.overlay.quad = null }
         }
         row.addView(find)
         row.addView(connect)

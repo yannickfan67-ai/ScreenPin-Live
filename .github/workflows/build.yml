@@ -1,15 +1,22 @@
-name: build
+name: build-and-release
+
 on:
   workflow_dispatch:
   push:
     branches: [ main ]
+
+permissions:
+  contents: write
+
+env:
+  RELEASE_TAG: v0.1.0
 
 jobs:
   android:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -18,17 +25,19 @@ jobs:
         run: |
           SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort -V | tail -1)
           yes | "$SDKMANAGER" --licenses >/dev/null || true
-          "$SDKMANAGER" "platforms;android-35" "build-tools;36.0.0"
+          "$SDKMANAGER" "platforms;android-36" "build-tools;36.0.0"
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.6.1'
       - name: Build APK
         working-directory: android
         run: gradle :app:assembleDebug
+      - name: Name APK
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk ScreenPinLive-Android-v0.1.0.apk
       - uses: actions/upload-artifact@v4
         with:
-          name: ScreenPinLive-Android-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: ScreenPinLive-Android
+          path: ScreenPinLive-Android-v0.1.0.apk
 
   desktop:
     runs-on: ubuntu-latest
@@ -39,13 +48,45 @@ jobs:
           dotnet-version: '10.0.x'
       - name: Windows EXE
         run: dotnet publish pc/ScreenPinLive/ScreenPinLive.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o pc/out/win-x64
+      - name: Name Windows EXE
+        run: cp pc/out/win-x64/ScreenPinLive.exe ScreenPinLive-Windows-x64-v0.1.0.exe
       - name: Linux DEB
         run: ./pc/build-deb.sh
+      - name: Copy DEB
+        run: cp pc/out/screenpin-live_0.1.0_amd64.deb .
       - uses: actions/upload-artifact@v4
         with:
-          name: ScreenPinLive-Windows-x64
-          path: pc/out/win-x64/ScreenPinLive.exe
+          name: ScreenPinLive-Windows
+          path: ScreenPinLive-Windows-x64-v0.1.0.exe
       - uses: actions/upload-artifact@v4
         with:
-          name: ScreenPinLive-Linux-DEB
-          path: pc/out/screenpin-live_0.1.0_amd64.deb
+          name: ScreenPinLive-Linux
+          path: screenpin-live_0.1.0_amd64.deb
+
+  release:
+    needs: [android, desktop]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$RELEASE_TAG" dist/* --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$RELEASE_TAG" dist/*               --repo "$GITHUB_REPOSITORY"               --target "$GITHUB_SHA"               --title "ScreenPin Live v0.1.0"               --notes "First real-time ScreenPin Live build.
+
+Android: CameraX + OpenCV screen tracking and LAN streaming.
+Windows/Linux: live desktop homography replacement, preview, snapshots and FFmpeg recording.
+
+Assets:
+- ScreenPinLive-Android-v0.1.0.apk
+- ScreenPinLive-Windows-x64-v0.1.0.exe
+- screenpin-live_0.1.0_amd64.deb"
+          fi
