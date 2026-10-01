@@ -3,7 +3,8 @@ name: build-and-release
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -64,13 +65,29 @@ jobs:
           path: screenpin-live_0.1.0_amd64.deb
 
   release:
-    needs: [android, desktop]
+    needs:
+      - android
+      - desktop
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
         with:
           path: dist
           merge-multiple: true
+      - name: Write release notes
+        shell: bash
+        run: |
+          cat > RELEASE_NOTES.md <<'EOF'
+          First real-time ScreenPin Live build.
+
+          Android: CameraX + OpenCV screen tracking and LAN streaming.
+          Windows/Linux: live desktop homography replacement, preview, snapshots and FFmpeg recording.
+
+          Assets:
+          - ScreenPinLive-Android-v0.1.0.apk
+          - ScreenPinLive-Windows-x64-v0.1.0.exe
+          - screenpin-live_0.1.0_amd64.deb
+          EOF
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -80,13 +97,9 @@ jobs:
           if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$RELEASE_TAG" dist/* --clobber --repo "$GITHUB_REPOSITORY"
           else
-            gh release create "$RELEASE_TAG" dist/*               --repo "$GITHUB_REPOSITORY"               --target "$GITHUB_SHA"               --title "ScreenPin Live v0.1.0"               --notes "First real-time ScreenPin Live build.
-
-Android: CameraX + OpenCV screen tracking and LAN streaming.
-Windows/Linux: live desktop homography replacement, preview, snapshots and FFmpeg recording.
-
-Assets:
-- ScreenPinLive-Android-v0.1.0.apk
-- ScreenPinLive-Windows-x64-v0.1.0.exe
-- screenpin-live_0.1.0_amd64.deb"
+            gh release create "$RELEASE_TAG" dist/* \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "ScreenPin Live v0.1.0" \
+              --notes-file RELEASE_NOTES.md
           fi
