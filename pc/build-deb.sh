@@ -14,7 +14,7 @@ SH
 chmod +x staging/usr/bin/screenpin-live staging/usr/lib/screenpin-live/ScreenPinLive
 cat > staging/DEBIAN/control <<'CTRL'
 Package: screenpin-live
-Version: 0.1.0
+Version: 0.1.1
 Section: video
 Priority: optional
 Architecture: amd64
@@ -32,5 +32,5 @@ Terminal=false
 Categories=AudioVideo;Utility;
 DESKTOP
 mkdir -p out
-dpkg-deb --build --root-owner-group staging out/screenpin-live_0.1.0_amd64.deb
-printf 'Built %s\n' "$PWD/out/screenpin-live_0.1.0_amd64.deb"
+dpkg-deb --build --root-owner-group staging out/screenpin-live_0.1.1_amd64.deb
+printf 'Built %s\n' "$PWD/out/screenpin-live_0.1.1_amd64.deb"

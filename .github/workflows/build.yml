@@ -10,7 +10,7 @@ permissions:
   contents: write
 
 env:
-  RELEASE_TAG: v0.1.0
+  RELEASE_TAG: v0.1.1
 
 jobs:
   android:
@@ -34,11 +34,11 @@ jobs:
         working-directory: android
         run: gradle :app:assembleDebug --stacktrace --info
       - name: Name APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk ScreenPinLive-Android-v0.1.0.apk
+        run: cp android/app/build/outputs/apk/debug/app-debug.apk ScreenPinLive-Android-v0.1.1.apk
       - uses: actions/upload-artifact@v4
         with:
           name: ScreenPinLive-Android
-          path: ScreenPinLive-Android-v0.1.0.apk
+          path: ScreenPinLive-Android-v0.1.1.apk
 
   desktop:
     runs-on: ubuntu-latest
@@ -50,19 +50,19 @@ jobs:
       - name: Windows EXE
         run: dotnet publish pc/ScreenPinLive/ScreenPinLive.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o pc/out/win-x64
       - name: Name Windows EXE
-        run: cp pc/out/win-x64/ScreenPinLive.exe ScreenPinLive-Windows-x64-v0.1.0.exe
+        run: cp pc/out/win-x64/ScreenPinLive.exe ScreenPinLive-Windows-x64-v0.1.1.exe
       - name: Linux DEB
         run: ./pc/build-deb.sh
       - name: Copy DEB
-        run: cp pc/out/screenpin-live_0.1.0_amd64.deb .
+        run: cp pc/out/screenpin-live_0.1.1_amd64.deb .
       - uses: actions/upload-artifact@v4
         with:
           name: ScreenPinLive-Windows
-          path: ScreenPinLive-Windows-x64-v0.1.0.exe
+          path: ScreenPinLive-Windows-x64-v0.1.1.exe
       - uses: actions/upload-artifact@v4
         with:
           name: ScreenPinLive-Linux
-          path: screenpin-live_0.1.0_amd64.deb
+          path: screenpin-live_0.1.1_amd64.deb
 
   release:
     needs:
@@ -78,15 +78,15 @@ jobs:
         shell: bash
         run: |
           cat > RELEASE_NOTES.md <<'EOF'
-          First real-time ScreenPin Live build.
+          ScreenPin Live v0.1.1: robust LAN discovery and optical-flow tracking.
 
-          Android: CameraX + OpenCV screen tracking and LAN streaming.
-          Windows/Linux: live desktop homography replacement, preview, snapshots and FFmpeg recording.
+          Android: active UDP discovery with TCP subnet-scan fallback; LK optical flow + RANSAC homography tracking with contour re-detection.
+          Windows/Linux: directed discovery replies/broadcasts plus live desktop homography replacement, preview, snapshots and FFmpeg recording.
 
           Assets:
-          - ScreenPinLive-Android-v0.1.0.apk
-          - ScreenPinLive-Windows-x64-v0.1.0.exe
-          - screenpin-live_0.1.0_amd64.deb
+          - ScreenPinLive-Android-v0.1.1.apk
+          - ScreenPinLive-Windows-x64-v0.1.1.exe
+          - screenpin-live_0.1.1_amd64.deb
           EOF
       - name: Publish GitHub Release
         env:
@@ -100,6 +100,6 @@ jobs:
             gh release create "$RELEASE_TAG" dist/* \
               --repo "$GITHUB_REPOSITORY" \
               --target "$GITHUB_SHA" \
-              --title "ScreenPin Live v0.1.0" \
+              --title "ScreenPin Live v0.1.1" \
               --notes-file RELEASE_NOTES.md
           fi
